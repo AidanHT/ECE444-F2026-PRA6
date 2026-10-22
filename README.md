@@ -13,7 +13,9 @@ Live on Render: https://ece444-pra6-flaskr.onrender.com
 
 Render web service `ece444-pra6-flaskr` (free plan, Ohio):
 
-- Repo: this repo, branch `main`, deploys automatically on every push
+- Repo: this repo's public URL, branch `main`. Render only auto-deploys repos
+  connected through its GitHub app, so new commits are deployed with
+  Manual Deploy > Deploy latest commit
 - Build command: `pip install -r requirements.txt`
 - Start command: `gunicorn project.app:app`
 - Environment: `PYTHON_VERSION=3.13.5` and `DATABASE_URL` set to the

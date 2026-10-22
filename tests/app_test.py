@@ -45,6 +45,12 @@ def test_database(client):
     assert tester
 
 
+def test_uses_test_database(client):
+    """Ensure the tests run against test.db, not the app's database"""
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    assert Path(db.engine.url.database) == BASE_DIR.joinpath(TEST_DB)
+
+
 def test_empty_db(client):
     """Ensure database is blank"""
     rv = client.get("/")

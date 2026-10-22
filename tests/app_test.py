@@ -1,5 +1,7 @@
 import json
 import os
+import subprocess
+import sys
 import pytest
 from pathlib import Path
 
@@ -174,3 +176,19 @@ def test_search_results_have_post_id(client):
     add_post(client, "Flask tips", "Use blueprints")
     rv = client.get("/search/?query=flask")
     assert b'<h2 id="1">Flask tips</h2>' in rv.data
+
+
+def test_postgres_url_is_rewritten():
+    """Ensure a postgres:// DATABASE_URL is changed to postgresql://"""
+    # run in a new process, since the URL is read when project.app is imported
+    env = {**os.environ, "DATABASE_URL": "postgres://user:pw@host:5432/flaskr"}
+    code = "from project.app import app; print(app.config['SQLALCHEMY_DATABASE_URI'])"
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=BASE_DIR,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "postgresql://user:pw@host:5432/flaskr"

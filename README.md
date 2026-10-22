@@ -7,6 +7,24 @@ Flaskr blog app built test-first by following the
 Each tested feature has an `Add failing ...` commit with the new tests, followed
 by the commit that makes them pass.
 
+Live on Render: https://ece444-pra6-flaskr.onrender.com
+
+## Deployment
+
+Render web service `ece444-pra6-flaskr` (free plan, Ohio):
+
+- Repo: this repo, branch `main`, deploys automatically on every push
+- Build command: `pip install -r requirements.txt`
+- Start command: `gunicorn project.app:app`
+- Environment: `PYTHON_VERSION=3.13.5` and `DATABASE_URL` set to the
+  database's Internal Database URL
+
+Render Postgres `ece444-pra6-db` (free plan, Postgres 17, Ohio). I created its
+table by setting `DATABASE_URL` to the External Database URL and running
+`python create_db.py` locally, as in the README. The free web service sleeps
+after 15 minutes without traffic, so the first request can take about a minute.
+The free database expires on 2026-11-21.
+
 ## Run locally
 
 From this folder in Windows PowerShell:

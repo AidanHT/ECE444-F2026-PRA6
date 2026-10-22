@@ -84,6 +84,14 @@ def test_messages(client):
     assert b"<strong>HTML</strong> allowed here" in rv.data
 
 
+def test_add_requires_login(client):
+    """Ensure a logged out user cannot add a post"""
+    rv = add_post(client, "Sneaky", "Not logged in")
+    assert rv.status_code == 401
+    rv = client.get("/")
+    assert b"Sneaky" not in rv.data
+
+
 def test_delete_message(client):
     """Ensure the messages are being deleted"""
     rv = client.get("/delete/1")

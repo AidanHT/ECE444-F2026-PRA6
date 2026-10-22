@@ -89,3 +89,53 @@ def test_delete_message(client):
     rv = client.get("/delete/1")
     data = json.loads(rv.data)
     assert data["status"] == 1
+
+
+def add_post(client, title, text):
+    """Add post helper function"""
+    return client.post(
+        "/add",
+        data=dict(title=title, text=text),
+        follow_redirects=True,
+    )
+
+
+def test_index_links_to_search(client):
+    """Ensure the index page has a link to the search page"""
+    rv = client.get("/")
+    assert b'href="/search/"' in rv.data
+
+
+def test_search_page(client):
+    """Ensure the search page loads with a search box"""
+    rv = client.get("/search/")
+    assert rv.status_code == 200
+    assert b'name="query"' in rv.data
+
+
+def test_search_by_title(client):
+    """Ensure search returns posts whose title matches, ignoring case"""
+    login(client, app.config["USERNAME"], app.config["PASSWORD"])
+    add_post(client, "Flask tips", "Use blueprints")
+    add_post(client, "Pasta", "Boil the water")
+    rv = client.get("/search/?query=flask")
+    assert b"Flask tips" in rv.data
+    assert b"Pasta" not in rv.data
+
+
+def test_search_by_text(client):
+    """Ensure search also matches the post text"""
+    login(client, app.config["USERNAME"], app.config["PASSWORD"])
+    add_post(client, "Flask tips", "Use blueprints")
+    add_post(client, "Pasta", "Boil the water")
+    rv = client.get("/search/?query=WATER")
+    assert b"Pasta" in rv.data
+    assert b"Flask tips" not in rv.data
+
+
+def test_search_results_have_post_id(client):
+    """Ensure search results carry the post id that main.js deletes by"""
+    login(client, app.config["USERNAME"], app.config["PASSWORD"])
+    add_post(client, "Flask tips", "Use blueprints")
+    rv = client.get("/search/?query=flask")
+    assert b'<h2 id="1">Flask tips</h2>' in rv.data

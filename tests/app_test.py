@@ -1,18 +1,21 @@
 import json
+import os
 import pytest
 from pathlib import Path
 
-from project.app import app, db
-
+BASE_DIR = Path(__file__).resolve().parent.parent
 TEST_DB = "test.db"
+
+# Flask-SQLAlchemy builds the engine when project.app is imported,
+# so the test database has to be chosen before that import
+os.environ["DATABASE_URL"] = f"sqlite:///{BASE_DIR.joinpath(TEST_DB)}"
+
+from project.app import app, db
 
 
 @pytest.fixture
 def client():
-    BASE_DIR = Path(__file__).resolve().parent.parent
     app.config["TESTING"] = True
-    app.config["DATABASE"] = BASE_DIR.joinpath(TEST_DB)
-    app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{BASE_DIR.joinpath(TEST_DB)}"
 
     with app.app_context():
         db.create_all()  # setup
@@ -47,7 +50,6 @@ def test_database(client):
 
 def test_uses_test_database(client):
     """Ensure the tests run against test.db, not the app's database"""
-    BASE_DIR = Path(__file__).resolve().parent.parent
     assert Path(db.engine.url.database) == BASE_DIR.joinpath(TEST_DB)
 
 
